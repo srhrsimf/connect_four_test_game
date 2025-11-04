@@ -1,0 +1,321 @@
+/* -------------------- ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ ЦЕНТРИРОВАНИЯ -------------------- */
+body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #282c34;
+  color: #f0f0f0;
+}
+
+/* -------------------- КОНТЕЙНЕРЫ -------------------- */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', Arial, sans-serif;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background-color: #3c3f46; /* Более светлый фон для контейнера игры */
+  color: #e0e0e0;
+}
+
+/*область клика и доска*/
+.board-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/*игровое поле*/
+.board {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 3px solid #333;
+  background-color: lightslategray;
+}
+
+/*строка*/
+.row {
+  display: flex;
+}
+
+/*ячейка*/
+.cell {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #6d6875;
+  border: 1px solid #333;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* -------------------- ФИШКИ -------------------- */
+.piece {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  transform: scale(0.9);
+  z-index: 10;
+  --drop-height: -300px;
+}
+
+.piece-red {
+  background-color: #c1121f;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.4);
+}
+
+.piece-blue {
+  background-color: #669bbc;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.4);
+}
+
+.piece-empty {
+  background-color: transparent;
+  opacity: 0;
+}
+
+.piece-winner {
+  box-shadow: 0 0 0 4px #00FF00;
+  transform: scale(1.05);
+}
+
+/* -------------------- АНИМАЦИЯ ПАДЕНИЯ И ОТСКОКА -------------------- */
+@keyframes dropAndBounce {
+  0% {
+    transform: translateY(var(--drop-height)) scale(0.9);
+  }
+  80% {
+    transform: translateY(0px) scale(0.9);
+  }
+  90% {
+    transform: translateY(-5px) scale(0.9);
+  }
+  100% {
+    transform: translateY(0px) scale(0.9);
+  }
+}
+/*запуск анимации*/
+.piece.piece-animate-drop {
+  animation: dropAndBounce 0.5s ease-in-out forwards;
+}
+
+/* -------------------- УПРАВЛЕНИЕ ХОДОМ (СИМВОЛ СТРЕЛКИ) -------------------- */
+.click-area {
+  width: calc(60px * 7 + 3px); /* 7 * CELL_SIZE + BORDER */
+  margin-bottom: 5px;
+  display: flex;
+  background-color: transparent;
+}
+
+/*интерактивность элемента*/
+.column-selector {
+  width: 60px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: transparent;
+  border-radius: 5px 5px 0 0;
+}
+
+/*блокировка клика*/
+.column-selector.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  animation: none !important;
+}
+
+/*анимация при наведении*/
+.column-selector:hover:not(.disabled) {
+  animation: bounce 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+/*стилизация стрелки*/
+.arrow {
+  font-size: 1.5em;
+  font-weight: bold;
+  user-select: none;
+  transition: transform 0.2s;
+}
+
+/*текущий ход: цвет*/
+.current-player-red {
+  color: #c1121f;
+}
+.current-player-blue {
+  color: #669bbc;
+}
+
+/*увеличение и сдвиг самой стрелки при наведении*/
+.column-selector:hover:not(.disabled) .arrow {
+  transform: translateY(-5px) scale(1.1);
+}
+
+
+/* -------------------- СООБЩЕНИЯ И СТАТУС -------------------- */
+.status-message {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding: 5px 15px;
+  border-radius: 5px;
+}
+
+/*стили для статуса */
+.current-player-red, .winner-red {
+  color: #c1121f;
+}
+.current-player-blue, .winner-blue {
+  color: #669bbc;
+}
+.draw {
+  color: #f0f0f0;
+  background-color: #333;
+}
+
+/* -------------------- КНОПКА ПЕРЕЗАПУСКА -------------------- */
+.button-group {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+.restart-button:hover {
+  background-color: #4cd45f;
+}
+.restart-button:active {
+  box-shadow: 0 1px #23a033;
+  transform: translateY(3px);
+}
+
+/* -------------------- МОДАЛЬНОЕ ОКНО ПОБЕДЫ -------------------- */
+/*полноэкранный фон для блокировки взаимодействия*/
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/*само модальное окно*/
+.modal-content {
+  background-color: #3c3f46;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/*анимация появления окна*/
+.modal-content.visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal-content h2 {
+  font-size: 2.5em;
+  margin-bottom: 15px;
+  margin-top: 0;
+}
+
+.modal-content p {
+  font-size: 1.5em;
+  margin-bottom: 30px;
+}
+
+/*дополнительные стили для кнопки "начать новую игру" внутри модального окна*/
+.modal-content .restart-button {
+  margin: 0;
+  padding: 12px 30px;
+  font-size: 1.2em;
+}
+
+/*история ходов*/
+.history-modal {
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 600px;
+}
+.history-list {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #333;
+}
+.history-item {
+  padding: 10px 0;
+  border-bottom: 1px dashed #555;
+  margin-bottom: 10px;
+}
+.history-item h4 {
+  color: #90caf9; /* Светло-голубой для заголовка */
+  margin-top: 0;
+}
+.final-step {
+  background-color: #3e3e3e;
+  border: 2px solid #5cb85c; /* Зеленая рамка для финального шага */
+  padding: 15px;
+  border-radius: 8px;
+}
+.winner-info {
+  color: #fdd835; /* Желтый для победителя */
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/*стили для кнопок в модальном окне окончания*/
+.restart-button,
+.button-history {
+  background-color: #535c91; /* Темно-синий/фиолетовый */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 5px;
+}
+
+.button-history:hover, .button-replay:hover {
+  background-color: #6a74a8;
+}
